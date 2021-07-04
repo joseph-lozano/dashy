@@ -11,9 +11,12 @@
     <div class="h-5/12 w-1/3 bg-yellow-100">4</div>
     <div class="h-5/12 w-1/3 bg-blue-100">5</div>
     <div class="h-5/12 w-1/3 bg-green-100">6</div>
-    <div class="flex items-center justify-center h-1/12 w-full bg-gray-100">
+    <div class="flex flex-col items-center justify-center h-1/12 w-full bg-gray-100">
       <%= if @article do %>
         <%= link @article[:title] , to: @article[:url], class: "inline-block align-middle text-gray-800 text-xl truncate mx-4 text-blue-600 underline"%>
+        <p class ="text-sm mx-4 text-gray-500 text-center">
+          <%= @article[:abstract] %>
+        </p>
       <% else %>
         <span class="inline-block align-middle text-gray-800 text-xl truncate mx-4">
           Loading...
