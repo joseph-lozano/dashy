@@ -1,7 +1,8 @@
 defmodule DashyWeb.PageLive do
   use DashyWeb, :live_view
 
-  alias Dashy.NYTimes
+  alias Dashy.{Github, NYTimes}
+  alias DashyWeb.{GithubComponent, NewsComponent}
 
   @news_refresh_rate :timer.seconds(30)
 
@@ -10,7 +11,8 @@ defmodule DashyWeb.PageLive do
     if connected?(socket) do
       send(self(), :refresh_time)
       Process.send_after(self(), :show_new_article, @news_refresh_rate)
-      send_update(NewsComponent, id: :news_component, article: NYTimes.get_article())
+      send_update(NewsComponent, id: :news, article: NYTimes.get_article())
+      send_update(GithubComponent, id: :github, issues: Github.get_issues())
     end
 
     {:ok,
@@ -28,9 +30,8 @@ defmodule DashyWeb.PageLive do
   end
 
   def handle_info(:show_new_article, socket) do
-    IO.puts("NEW ARTICLE")
     Process.send_after(self(), :show_new_article, @news_refresh_rate)
-    send_update(NewsComponent, id: :news_component, article: NYTimes.get_article())
+    send_update(NewsComponent, id: :news, article: NYTimes.get_article())
 
     {:noreply, socket}
   end

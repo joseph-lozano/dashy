@@ -25,6 +25,11 @@ config :phoenix, :json_library, Jason
 
 config :dashy, Dashy.NYTimes, api_key: System.get_env("NYTIMES_API_KEY")
 
+config :dashy, Dashy.Github,
+  api_key: System.get_env("GITHUB_TOKEN"),
+  username: System.get_env("GITHUB_USERNAME"),
+  orgs: ["testdouble", "fast-radius"]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

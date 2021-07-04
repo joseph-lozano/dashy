@@ -1,4 +1,4 @@
-defmodule NewsComponent do
+defmodule DashyWeb.NewsComponent do
   use Phoenix.LiveComponent
 
   def mount(socket) do
