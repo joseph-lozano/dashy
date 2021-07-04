@@ -34,10 +34,6 @@ defmodule Dashy.NYTimes do
      %__MODULE__{state | articles: articles, current_task: nil, last_update: DateTime.utc_now()}}
   end
 
-  def handle_call(:get_articles, _, state) do
-    {:reply, state.articles, state}
-  end
-
   def handle_info({:DOWN, _ref, :process, _pid, :normal}, state) do
     {:noreply, state}
   end
@@ -45,6 +41,18 @@ defmodule Dashy.NYTimes do
   def handle_info(other, state) do
     Logger.warn("Received unknown message #{inspect(other)}.")
     {:noreply, state}
+  end
+
+  def handle_call(:get_articles, _, state) do
+    {:reply, state.articles, state}
+  end
+
+  def get_article() do
+    get_articles() |> Enum.random()
+  end
+
+  def get_article(index) do
+    get_articles() |> Enum.at(index)
   end
 
   def get_articles() do

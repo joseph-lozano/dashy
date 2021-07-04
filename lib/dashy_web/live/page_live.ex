@@ -3,26 +3,19 @@ defmodule DashyWeb.PageLive do
 
   alias Dashy.NYTimes
 
+  @news_refresh_rate :timer.seconds(30)
+
   @impl true
   def mount(_params, _session, socket) do
-    %{article: article} =
-      if connected?(socket) do
-        send(self(), :refresh_time)
-        Process.send_after(self(), :show_new_article, :timer.seconds(30))
-
-        article =
-          NYTimes.get_articles()
-          |> Enum.random()
-
-        %{article: article}
-      else
-        %{article: nil}
-      end
+    if connected?(socket) do
+      send(self(), :refresh_time)
+      Process.send_after(self(), :show_new_article, @news_refresh_rate)
+      send_update(NewsComponent, id: :news_component, article: NYTimes.get_article())
+    end
 
     {:ok,
      assign(socket,
-       time: render_time(DateTime.utc_now()),
-       article: article
+       time: render_time(DateTime.utc_now())
      )}
   end
 
@@ -35,13 +28,11 @@ defmodule DashyWeb.PageLive do
   end
 
   def handle_info(:show_new_article, socket) do
-    Process.send_after(self(), :show_new_article, :timer.seconds(30))
+    IO.puts("NEW ARTICLE")
+    Process.send_after(self(), :show_new_article, @news_refresh_rate)
+    send_update(NewsComponent, id: :news_component, article: NYTimes.get_article())
 
-    article =
-      NYTimes.get_articles()
-      |> Enum.random()
-
-    {:noreply, assign(socket, article: article)}
+    {:noreply, socket}
   end
 
   defp render_time(datetime) do
