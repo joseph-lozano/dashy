@@ -11,7 +11,7 @@ defmodule Dashy.Application do
       DashyWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Dashy.PubSub},
-      Dashy.NewsApi,
+      Dashy.NYTimes,
       # Start the Endpoint (http/https)
       DashyWeb.Endpoint
       # Start a worker by calling: Dashy.Worker.start_link(arg)

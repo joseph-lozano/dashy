@@ -1,4 +1,4 @@
-defmodule Dashy.NewsApi do
+defmodule Dashy.NYTimes do
   use GenServer
   require Logger
 
@@ -57,9 +57,9 @@ defmodule Dashy.NewsApi do
 
   defp us_headlines() do
     with {:ok, %{body: json_body}} <-
-           HTTPoison.get("https://newsapi.org/v2/top-headlines?country=us&apiKey=#{api_key()}"),
-         {:ok, %{articles: articles}} <- Jason.decode(json_body, keys: :atoms) do
-      {:ok, articles}
+           HTTPoison.get("https://api.nytimes.com/svc/topstories/v2/us.json?api-key=#{api_key()}"),
+         {:ok, %{results: results}} <- Jason.decode(json_body, keys: :atoms) do
+      {:ok, results}
     end
   end
 

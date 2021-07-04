@@ -1,7 +1,7 @@
 defmodule DashyWeb.PageLive do
   use DashyWeb, :live_view
 
-  alias Dashy.NewsApi
+  alias Dashy.NYTimes
 
   @impl true
   def mount(_params, _session, socket) do
@@ -11,7 +11,7 @@ defmodule DashyWeb.PageLive do
         Process.send_after(self(), :show_new_article, :timer.seconds(30))
 
         article =
-          NewsApi.get_articles()
+          NYTimes.get_articles()
           |> Enum.random()
 
         %{article: article}
@@ -38,7 +38,7 @@ defmodule DashyWeb.PageLive do
     Process.send_after(self(), :show_new_article, :timer.seconds(30))
 
     article =
-      NewsApi.get_articles()
+      NYTimes.get_articles()
       |> Enum.random()
 
     {:noreply, assign(socket, article: article)}
