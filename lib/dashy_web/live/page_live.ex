@@ -8,7 +8,7 @@ defmodule DashyWeb.PageLive do
     %{article: article} =
       if connected?(socket) do
         send(self(), :refresh_time)
-        send(self(), :show_new_article)
+        Process.send_after(self(), :show_new_article, :timer.seconds(30))
 
         article =
           NewsApi.get_articles()
@@ -35,7 +35,7 @@ defmodule DashyWeb.PageLive do
   end
 
   def handle_info(:show_new_article, socket) do
-    Process.send_after(self(), :show_new_article, :timer.seconds(3))
+    Process.send_after(self(), :show_new_article, :timer.seconds(30))
 
     article =
       NewsApi.get_articles()

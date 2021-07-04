@@ -1,5 +1,6 @@
 defmodule Dashy.NewsApi do
   use GenServer
+  require Logger
 
   defstruct articles: [], last_update: nil, current_task: nil
 
@@ -12,6 +13,14 @@ defmodule Dashy.NewsApi do
   end
 
   def handle_continue(:initialize, state) do
+    Process.send_after(self(), :fetch_articles, :timer.minutes(5))
+    task = Task.async(&us_headlines/0)
+    new_state = put_in(state.current_task, task)
+    {:noreply, new_state}
+  end
+
+  def handle_info(:fetch_articles, state) do
+    Process.send_after(self(), :fetch_articles, :timer.minutes(5))
     task = Task.async(&us_headlines/0)
     new_state = put_in(state.current_task, task)
     {:noreply, new_state}
@@ -25,12 +34,17 @@ defmodule Dashy.NewsApi do
      %__MODULE__{state | articles: articles, current_task: nil, last_update: DateTime.utc_now()}}
   end
 
+  def handle_call(:get_articles, _, state) do
+    {:reply, state.articles, state}
+  end
+
   def handle_info({:DOWN, _ref, :process, _pid, :normal}, state) do
     {:noreply, state}
   end
 
-  def handle_call(:get_articles, _, state) do
-    {:reply, state.articles, state}
+  def handle_info(other, state) do
+    Logger.warn("Received unknown message #{inspect(other)}.")
+    {:noreply, state}
   end
 
   def get_articles() do
@@ -41,17 +55,17 @@ defmodule Dashy.NewsApi do
     Application.get_env(:dashy, __MODULE__)[:api_key]
   end
 
-  # defp us_headlines() do
-  #   with {:ok, %{body: json_body}} <-
-  #          HTTPoison.get("https://newsapi.org/v2/top-headlines?country=us&apiKey=#{api_key()}"),
-  #        {:ok, %{articles: articles}} <- Jason.decode(json_body, keys: :atoms) do
-  #     {:ok, articles}
-  #   end
-  # end
-
   defp us_headlines() do
-    "priv/news_api/example_response"
-    |> File.read!()
-    |> :erlang.binary_to_term()
+    with {:ok, %{body: json_body}} <-
+           HTTPoison.get("https://newsapi.org/v2/top-headlines?country=us&apiKey=#{api_key()}"),
+         {:ok, %{articles: articles}} <- Jason.decode(json_body, keys: :atoms) do
+      {:ok, articles}
+    end
   end
+
+  # defp us_headlines() do
+  #   "priv/news_api/example_response"
+  #   |> File.read!()
+  #   |> :erlang.binary_to_term()
+  # end
 end
